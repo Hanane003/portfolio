@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hanane | Professional Portfolio</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Vazirmatn:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --primary: #6993cd;
+      --panel-bg: rgba(255,255,255,.06);
+      --panel-border: rgba(255,255,255,.12);
+      --text: #ffffff;
+      --text-dark: #0f172a;
+    }
+
+    *{ box-sizing: border-box; }
+
+    body{
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--text);
+      overflow-x: hidden;
+      background: linear-gradient(
+        to bottom,
+        #02040a 0%,
+        #080e1e 15%,
+        #121d3a 30%,
+        #1f325c 45%,
+        #3b5c8f 60%,
+        #6993cd 75%,
+        #add3f7 90%,
+        #f2f8fe 100%
+      );
+    }
+
+    canvas{
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    html{
+      scroll-snap-type: y mandatory;
+      scroll-behavior: smooth;
+    }
+
+    section{
+      height: 100vh;
+      scroll-snap-align: start;
+      scroll-snap-stop: always;
+
+      position: relative;
+      z-index: 2;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      padding: 0 10%;
+    }
+
+    section.right-content{
+      justify-content: flex-end; /* fixed: never changes with language */
+    }
+
+    .panel{
+      width: 50%;
+      min-width: 320px;
+      padding: 42px;
+      border-radius: 28px;
+
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      box-shadow: 0 20px 50px rgba(0,0,0,.35);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+
+    /* We DO NOT change layout direction globally.
+       Only text alignment + font for Persian. */
+    body[data-lang="en"] .panel{
+      text-align: left;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    }
+
+    body[data-lang="fa"] .panel{
+      text-align: right;
+      font-family: Vazirmatn, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    }
+
+    /* Keep numbers and emails readable even in Persian */
+    .ltr{
+      direction: ltr;
+      unicode-bidi: embed;
+      display: inline-block;
+    }
+
+    h1{
+      margin: 0 0 14px 0;
+      font-size: 2.35rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      line-height: 1.15;
+    }
+
+    p{
+      margin: 0;
+      font-size: 1.04rem;
+      line-height: 1.75;
+      opacity: .88;
+    }
+
+    /* Language Switcher */
+    .lang-switcher{
+      position: fixed;
+      top: 26px;
+      right: 26px;
+      z-index: 100;
+      display: flex;
+      gap: 10px;
+    }
+
+    .lang-btn{
+      border: 1px solid var(--panel-border);
+      background: rgba(255,255,255,.10);
+      color: var(--text);
+      padding: 9px 14px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: .85rem;
+      cursor: pointer;
+      transition: transform .2s ease, background .2s ease;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .lang-btn:hover{
+      background: rgba(255,255,255,.18);
+      transform: translateY(-2px);
+    }
+
+    .lang-btn.active{
+      background: rgba(255,255,255,.24);
+    }
+
+    /* Skills (layout must not flip) */
+    .skills{
+      margin-top: 6px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .skill-item{
+      display: grid;
+      gap: 8px;
+    }
+
+    .skill-row{
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .skill-name{
+      font-weight: 700;
+      opacity: .95;
+    }
+
+    .dots{
+      display: flex;
+      gap: 7px;
+      flex-shrink: 0;
+    }
+
+    .dot{
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.18);
+      border: 1px solid rgba(255,255,255,.06);
+    }
+
+    .dot.active{
+      background: var(--primary);
+      box-shadow: 0 0 14px rgba(105,147,205,.75);
+    }
+
+    /* Contact links: keep layout stable; just align text via panel text-align */
+    .contact-links{
+      margin-top: 14px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .contact-links a{
+      color: inherit;
+      text-decoration: none;
+      font-weight: 700;
+      opacity: .92;
+      transition: opacity .2s ease, transform .2s ease;
+      display: inline-block;
+    }
+
+    .contact-links a:hover{
+      opacity: .72;
+      transform: translateX(6px);
+    }
+
+    /* IMPORTANT: do NOT reverse hover direction in FA
+       to avoid “movement changed” feeling. */
+
+    /* Day mode */
+    body.day-mode{
+      color: var(--text-dark);
+    }
+
+    body.day-mode .panel{
+      background: rgba(15, 23, 42, 0.06);
+      border-color: rgba(15, 23, 42, 0.14);
+      box-shadow: 0 20px 50px rgba(0,0,0,.18);
+    }
+
+    body.day-mode .lang-btn{
+      background: rgba(15, 23, 42, 0.08);
+      color: var(--text-dark);
+      border-color: rgba(15, 23, 42, 0.18);
+    }
+
+    body.day-mode .dot{
+      background: rgba(0,0,0,.12);
+      border-color: rgba(0,0,0,.06);
+    }
+
+    body.day-mode .dot.active{
+      background: #1f325c;
+      box-shadow: none;
+    }
+
+    @media (max-width: 900px){
+      section.right-content{ justify-content: center; }
+      .panel{ width: 88%; min-width: unset; padding: 28px; }
+      h1{ font-size: 2rem; }
+    }
+  </style>
+
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/STLLoader.js"></script>
+</head>
+
+<body data-lang="en">
+  <div class="lang-switcher">
+    <button class="lang-btn active" id="btn-en" type="button">EN</button>
+    <button class="lang-btn" id="btn-fa" type="button">FA</button>
+  </div>
+
+  <script>
+    const translations = {
+      en: {
+        s1_h: "Hi, I'm Hanane Hasanzade",
+        s1_p: "MSc Geodesy student",
+        s2_h: "About Me",
+        s2_p: "MSc student in Geodesy at University of Tehran.<br> focused on geodesy, Timeseries, Deep learning, and programming. Interested in Geodesy, machine learning, and geospatial intelligence.",
+        s3_h: "Education",
+        s3_p: "<strong>• MSc in Geodesy</strong><br>University of Tehran (2025–ongoing)<br><br><strong>• BSc in Surveying Engineering</strong><br>University of Tehran (2021–2025)<br>GPA: 17.82/20 <br>🏆 Ranked 1st",
+        s4_h: "Technical & Software Skills",
+
+        sk1: "Python",
+        sk2: "MATLAB",
+        sk3: "AutoCAD / Civil3D",
+        sk4: "Leica infinity",
+        sk5: "ArcGIS/QGIS",
+        sk6: "SQL",
+        sk7: "ENVI/snapp",
+        sk8: "Hypack<br><br>————————",
+        sk9: "Deep Learning",
+        sk10: "Machine Learning",
+
+        s5_h: "Projects",
+        s6_h: "Certificates",
+        s6_p: "•Machine Learning course  <br>• UAV Control License",
+
+        s7_h: "Publications / Articles",
+        s7_p: "<br>• Conference Paper (Geophysics conference): <br>Time series preprocessing for noise reduction and data recovery <br>Published 2024<br>DOI: 20.1001.2.03240016900.1403.21.1.264.0<br><br>• Research Paper: In progress<br>Automated road alignment (NSGA-based)<br><br>",
+
+        s8_h: "Contact",
+        s8_p: "Open to research and projects.",
+
+        l1: "Email: hanane.hasanzade.m@gmail.com",
+        l2: "LinkedIn: https://linkedin.com/in/your-profile",
+        l3: "GitHub: https://github.com/your-profile"
+      },
+
+      fa: {
+        s1_h: "سلام، من حنانه حسن‌زاده هستم",
+        s1_p: "دانشجوی کارشناسی ارشد ژئودزی",
+        s2_h: "درباره من",
+        s2_p: "دانشجوی کارشناسی ارشد ژئودزی دانشگاه تهران هستم. زمینه فعالیت ها من مرتبط با ژئودزی، سری‌های زمانی، یادگیری عمیق و برنامه‌نویسی است",
+        s3_h: "تحصیلات",
+        s3_p: "<div dir=\"rtl\"><strong>• کارشناسی ارشد ژئودزی</strong><br>دانشگاه تهران (۱۴۰۴–تاکنون)<br><br><strong>• کارشناسی مهندسی نقشه‌برداری</strong><br>دانشگاه تهران (۱۴۰۰–۱۴۰۴)<br>معدل: ۱۷.۸۲ از ۲۰<br>رنک یک🏆</div>",
+        s4_h: "مهارت‌ها و نرم‌افزار ها<br>",
+
+        sk1: "Python",
+        sk2: "MATLAB",
+        sk3: "AutoCAD / Civil3D",
+        sk4: "Leica infinity",
+        sk5: "ArcGIS/QGIS",
+        sk6: "SQL",
+        sk7: "ENVI/snapp",
+        sk8: "Hypack",
+        sk9: "یادگیری عمیق",
+        sk10: "یادگیری ماشین",
+
+        s5_h: "پروژه‌ها",
+        s6_h: "گواهینامه‌ها",
+        s6_p: "<div dir=\"rtl\">• دوره یادگیری ماشین<br>• مدرک کنترل پهپاد</div>",
+
+        s7_h: "مقالات",
+        s7_p: "<div dir=\"rtl\"><br>• مقاله کنفرانسی (کنفرانس ژئوفیزیک)<br>پیش‌پردازش سری زمانی برای کاهش نویز و بازیابی داده‌ها<br>چاپ شده در ۲۰۲۴<br><span class=\"ltr\">DOI: 20.1001.2.03240016900.1403.21.1.264.0</span><br><br>• مقاله پژوهشی: در حال انجام<br>طراحی خودکار مسیر (مبتنی بر NSGA)</div>",
+
+        s8_h: "ارتباط با من",
+        s8_p: ":راه ها ارتباطی جهت همکاری پژوهشی - پروژه‌ای",
+
+        l1: "hanane.hasanzade.m@gmail.com:ایمیل",
+        l2: "https://linkedin.com/in/your-profile :لینکدین",
+        l3: "https://github.com/your-profile:گیت‌هاب"
+      }
+    };
+
+    function applyLanguage(lang){
+      document.body.setAttribute("data-lang", lang);
+
+      document.querySelectorAll("[data-key]").forEach(el => {
+        const key = el.getAttribute("data-key");
+        el.innerHTML = translations[lang][key];
+      });
+
+      document.getElementById("btn-en").classList.toggle("active", lang === "en");
+      document.getElementById("btn-fa").classList.toggle("active", lang === "fa");
+    }
+
+    document.getElementById("btn-en").addEventListener("click", () => applyLanguage("en"));
+    document.getElementById("btn-fa").addEventListener("click", () => applyLanguage("fa"));
+
+    // Initial language after HTML content is loaded
+    window.addEventListener("DOMContentLoaded", () => {
+      applyLanguage("en");
+    });
+
+    // Three.js
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(0, 0, 12);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    scene.add(new THREE.AmbientLight(0xffffff, 1.5));
+    const dLight = new THREE.DirectionalLight(0xffffff, 2);
+    dLight.position.set(5, 5, 5);
+    scene.add(dLight);
+
+    const gateLight = new THREE.DirectionalLight(0xffffff, 0);
+    gateLight.position.set(-8, 10, 6);
+    scene.add(gateLight);
+
+    let earth = null;
+    let uniGate = null;
+
+    const loader = new THREE.GLTFLoader();
+    loader.load("earth_3d_model1.glb", (gltf) => {
+      earth = gltf.scene;
+      earth.scale.set(0.08, 0.08, 0.08);
+      earth.position.set(-5, 0, 0);
+      earth.rotation.x = 0.5;
+      earth.rotation.y = Math.PI * 1.5;
+      scene.add(earth);
+      window.dispatchEvent(new Event("scroll"));
+    });
+
+    // Load university gate STL
+    const stlLoader = new THREE.STLLoader();
+    stlLoader.load("uni.stl", (geometry) => {
+        const material = new THREE.MeshStandardMaterial({
+          color: 0x3c3a36,
+          roughness: 0.88,
+          metalness: 0.15
+        });
+
+      uniGate = new THREE.Mesh(geometry, material);
+
+      geometry.computeVertexNormals();
+
+      uniGate.scale.set(1, 1, 1);
+      uniGate.position.set(-3, -8, 0);
+
+      // Initial orientation — can be adjusted later
+      uniGate.rotation.x = -Math.PI / 2;
+      uniGate.rotation.y = 0;
+      uniGate.rotation.z = 0;
+
+      uniGate.visible = false;
+
+      scene.add(uniGate);
+    });
+
+    function setModelOpacity(obj, value){
+      obj.traverse((c) => {
+        if (c && c.material){
+          c.material.transparent = true;
+          c.material.opacity = value;
+        }
+      });
+    }
+
+    window.addEventListener("scroll", () => {
+      if (!earth) return;
+
+      const sectionH = window.innerHeight;
+      const progress = window.scrollY / sectionH;
+
+      if (progress >= 4.5) document.body.classList.add("day-mode");
+      else document.body.classList.remove("day-mode");
+
+      const animatedSections = 3; // 0..2
+      const t = Math.min(progress / (animatedSections - 1), 1);
+
+      if (t < 0.6){
+        const k = t / 0.6;
+
+        const s = THREE.MathUtils.lerp(0.08, 0.22, k);
+        earth.scale.set(s, s, s);
+
+        camera.position.z = THREE.MathUtils.lerp(12, 8, k);
+
+        earth.position.y = THREE.MathUtils.lerp(0, 10, k);
+
+        // Fixed path independent of language
+        earth.position.x = THREE.MathUtils.lerp(-5, 0, k);
+
+        setModelOpacity(earth, 1);
+        // Hide gate if loaded
+        if (uniGate) uniGate.visible = false;
+      } else {
+        const k2 = (t - 0.6) / 0.4;
+
+        earth.scale.set(0.22, 0.22, 0.22);
+        camera.position.z = 8;
+        earth.position.set(0, 10, 0);
+
+        const earthOpacity = THREE.MathUtils.lerp(1, 0, k2);
+        setModelOpacity(earth, earthOpacity);
+
+        // Special lighting only during section 3
+        if (progress > 1.7 && progress < 3){
+          gateLight.intensity = 2.8;
+          gateLight.position.set(-10, 12, 8);
+        } else {
+          gateLight.intensity = 0;
+        }
+
+        // University gate appears after Earth fades
+        if (uniGate){
+          uniGate.visible = true;
+
+          // Fade in during section 3, fade out entering section 4
+          let gateOpacity;
+
+          if (progress < 2.65){
+            gateOpacity = THREE.MathUtils.lerp(0, 1, Math.max(0, k2 - 0.25) / 0.75);
+          } else {
+            const fadeOut = Math.min((progress - 2.65) / 0.35, 1);
+            gateOpacity = 1 - fadeOut;
+          }
+
+          uniGate.material.transparent = true;
+          uniGate.material.opacity = gateOpacity;
+
+          // Gentle floating motion
+          const floatX = Math.sin(Date.now() * 0.0012) * 0.22;
+
+          uniGate.position.set(
+            -3 + floatX,
+            THREE.MathUtils.lerp(-8, -1.5, k2),
+            0
+          );
+
+          const gateScale = THREE.MathUtils.lerp(0.009, 0.02, k2);
+          uniGate.scale.set(gateScale, gateScale, gateScale);
+
+          // Hide completely after fade
+          if (gateOpacity <= 0.01){
+            uniGate.visible = false;
+          }
+        }
+      }
+    });
+
+    function animate(){
+      requestAnimationFrame(animate);
+      if (earth) earth.rotation.y += 0.005;
+
+      // Gate oscillating rotation
+      if (uniGate && uniGate.visible){
+        uniGate.rotation.z = Math.sin(Date.now() * 0.00045) * THREE.MathUtils.degToRad(5);
+      }
+
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener("resize", () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+
+  <section class="right-content">
+    <div class="panel">
+      <h1 data-key="s1_h"></h1>
+      <p data-key="s1_p"></p>
+    </div>
+  </section>
+
+  <section>
+    <div class="panel">
+      <h1 data-key="s2_h"></h1>
+      <p data-key="s2_p"></p>
+    </div>
+  </section>
+
+  <section class="right-content">
+    <div class="panel">
+      <h1 data-key="s3_h"></h1>
+      <p data-key="s3_p"></p>
+    </div>
+  </section>
+
+  <section>
+    <div class="panel">
+      <h1 data-key="s4_h"></h1>
+
+      <div class="skills">
+        <div class="skill-item">
+          <div class="skill-row">
+            <span class="skill-name" data-key="sk1"></span>
+            <div class="dots" aria-label="skill level 4/5">
+              <span class="dot active"></span>
+              <span class="dot active"></span>
+              <span class="dot active"></span>
+              <span class="dot active"></span>
+              <span class="dot"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="skill-item">
+          <div class="skill-row">
+            <span class="skill-name" data-key="sk2"></span>
+            <div class="dots" aria-label="skill level 4/5">
+              <span class="dot active"></span>
+              <span class="dot active"></span>
+              <span class="dot active"></span>
+              <span class="dot active"></span>
+              <span class="dot"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="skill-item">
+          <div class="skill-row">
+            <span class="skill-name" data-key="sk3"></span>
+            <div class="dots" aria-label="skill level 3/5">
+              <span class="dot active"></span>
+              <span class="dot active"></span>
+              <span class="dot active"></span>
+              <span class="dot active"></span>
+              <span class="dot"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="skill-item">
+          <div class="skill-row">
+            <span class="skill-name" data-key="sk4"></span>
+            <div class="dots">
+              <span class="dot active"></span>
+              <span class="dot active"></span>
+              <span class="dot active"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="skill-item">
+          <div class="skill-row">
+            <span class="skill-name" data-key="sk5"></span>
+            <div class="dots">
+              <span class="dot active"></span>
+              <span class="dot active"></span>
+              <span class="dot active"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="skill-item">
+          <div class="skill-row">
+            <span class="skill-name" data-key="sk6"></span>
+            <div class="dots">
+              <span class="dot active"></span>
+              <span class="dot active"></span>
+              <span class="dot active"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="skill-item">
+          <div class="skill-row">
+            <span class="skill-name" data-key="sk7"></span>
+            <div class="dots">
+              <span class="dot active"></span>
+              <span class="dot active"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="skill-item">
+          <div class="skill-row">
+            <span class="skill-name" data-key="sk8"></span>
+            <div class="dots">
+              <span class="dot active"></span>
+              <span class="dot active"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="skill-item">
+          <div class="skill-row">
+            <span class="skill-name" data-key="sk9"></span>
+            <div class="dots">
+              <span class="dot active"></span>
+              <span class="dot active"></span>
+              <span class="dot active"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="skill-item">
+          <div class="skill-row">
+            <span class="skill-name" data-key="sk10"></span>
+            <div class="dots">
+              <span class="dot active"></span>
+              <span class="dot active"></span>
+              <span class="dot active"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section>
+    <div class="panel">
+      <h1 data-key="s5_h"></h1>
+      <div class="skills">
+        <div class="skill-item">
+          <div class="skill-row">
+            <span>Micro Geodesy Network Design</span>
+            <button onclick="location.href='#p1'">Details</button>
+          </div>
+        </div>
+
+        <div class="skill-item">
+          <div class="skill-row">
+            <span>Automated Road Alignment (NSGA)</span>
+            <button onclick="location.href='#p2'">Details</button>
+          </div>
+        </div>
+
+        <div class="skill-item">
+          <div class="skill-row">
+            <span>Caspian Sea Level Prediction</span>
+            <button onclick="location.href='#p3'">Details</button>
+          </div>
+        </div>
+
+        <div class="skill-item">
+          <div class="skill-row">
+            <span>Road Design (Full Engineering Phases)</span>
+            <button onclick="location.href='#p4'">Details</button>
+          </div>
+        </div>
+
+        <div class="skill-item">
+          <div class="skill-row">
+            <span>GNSS Positioning & Error Modeling</span>
+            <button onclick="location.href='#p5'">Details</button>
+          </div>
+        </div>
+
+        <div class="skill-item">
+          <div class="skill-row">
+            <span>Educational Database Design</span>
+            <button onclick="location.href='#p6'">Details</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="panel">
+      <h1 data-key="s6_h"></h1>
+      <p data-key="s6_p"></p>
+    </div>
+  </section>
+
+  <section>
+    <div class="panel">
+      <h1 data-key="s7_h"></h1>
+      <p data-key="s7_p"></p>
+    </div>
+  </section>
+
+  <section>
+    <div class="panel">
+      <h1 data-key="s8_h"></h1>
+      <p data-key="s8_p"></p>
+
+      <div class="contact-links">
+        <a class="ltr" href="mailto:hanane@email.com" data-key="l1"></a>
+        <a class="ltr" href="#" data-key="l2"></a>
+        <a class="ltr" href="#" data-key="l3"></a>
+      </div>
+    </div>
+  </section>
+</body>
+</html>
