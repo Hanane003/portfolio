@@ -4,10 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Hanane | Professional Portfolio</title>
+  <!--
+    Hanane Hasanzade | Professional Portfolio
+    Interactive personal portfolio website built with HTML, CSS, JavaScript, and Three.js.
+    Includes bilingual support, 3D visualization, projects, certificates, and contact information.
+  -->
 
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Vazirmatn:wght@300;400;600;700&display=swap" rel="stylesheet">
 
   <style>
+    /* Global theme variables */
     :root{
       --primary: #6993cd;
       --panel-bg: rgba(255,255,255,.06);
@@ -114,7 +120,7 @@
       opacity: .88;
     }
 
-    /* Language Switcher */
+    /* Language controls */
     .lang-switcher{
       position: fixed;
       top: 26px;
@@ -147,7 +153,7 @@
       background: rgba(255,255,255,.24);
     }
 
-    /* Skills (layout must not flip) */
+    /* Skills section */
     .skills{
       margin-top: 6px;
       display: grid;
@@ -209,6 +215,27 @@
     .contact-links a:hover{
       opacity: .72;
       transform: translateX(6px);
+    }
+
+    /* Certificate button */
+    .detail-btn{
+      margin-top: 18px;
+      padding: 10px 22px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.25);
+      background: rgba(255,255,255,.12);
+      color: inherit;
+      font-weight: 700;
+      font-size: .9rem;
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      transition: .25s ease;
+    }
+
+    .detail-btn:hover{
+      transform: translateY(-3px);
+      background: rgba(255,255,255,.22);
     }
 
     /* IMPORTANT: do NOT reverse hover direction in FA
@@ -292,8 +319,8 @@
         s8_p: "Open to research and projects.",
 
         l1: "Email: hanane.hasanzade.m@gmail.com",
-        l2: "LinkedIn: https://linkedin.com/in/your-profile",
-        l3: "GitHub: https://github.com/your-profile"
+        l2: "LinkedIn",
+        l3: "GitHub"
       },
 
       fa: {
@@ -327,8 +354,8 @@
         s8_p: ":راه ها ارتباطی جهت همکاری پژوهشی - پروژه‌ای",
 
         l1: "hanane.hasanzade.m@gmail.com:ایمیل",
-        l2: "https://linkedin.com/in/your-profile :لینکدین",
-        l3: "https://github.com/your-profile:گیت‌هاب"
+        l2: "لینکدین",
+        l3: "گیت‌هاب"
       }
     };
 
@@ -352,7 +379,7 @@
       applyLanguage("en");
     });
 
-    // Three.js
+    // 3D scene setup
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
     camera.position.set(0, 0, 12);
@@ -384,7 +411,7 @@
       window.dispatchEvent(new Event("scroll"));
     });
 
-    // Load university gate STL
+    // Load university model
     const stlLoader = new THREE.STLLoader();
     stlLoader.load("uni.stl", (geometry) => {
         const material = new THREE.MeshStandardMaterial({
@@ -689,42 +716,36 @@
         <div class="skill-item">
           <div class="skill-row">
             <span>Micro Geodesy Network Design</span>
-            <button onclick="location.href='#p1'">Details</button>
           </div>
         </div>
 
         <div class="skill-item">
           <div class="skill-row">
             <span>Automated Road Alignment (NSGA)</span>
-            <button onclick="location.href='#p2'">Details</button>
           </div>
         </div>
 
         <div class="skill-item">
           <div class="skill-row">
             <span>Caspian Sea Level Prediction</span>
-            <button onclick="location.href='#p3'">Details</button>
           </div>
         </div>
 
         <div class="skill-item">
           <div class="skill-row">
             <span>Road Design (Full Engineering Phases)</span>
-            <button onclick="location.href='#p4'">Details</button>
           </div>
         </div>
 
         <div class="skill-item">
           <div class="skill-row">
             <span>GNSS Positioning & Error Modeling</span>
-            <button onclick="location.href='#p5'">Details</button>
           </div>
         </div>
 
         <div class="skill-item">
           <div class="skill-row">
             <span>Educational Database Design</span>
-            <button onclick="location.href='#p6'">Details</button>
           </div>
         </div>
       </div>
@@ -735,6 +756,7 @@
     <div class="panel">
       <h1 data-key="s6_h"></h1>
       <p data-key="s6_p"></p>
+      <button class="detail-btn" onclick="location.href='certificates.html'">Details</button>
     </div>
   </section>
 
@@ -751,9 +773,9 @@
       <p data-key="s8_p"></p>
 
       <div class="contact-links">
-        <a class="ltr" href="mailto:hanane@email.com" data-key="l1"></a>
-        <a class="ltr" href="#" data-key="l2"></a>
-        <a class="ltr" href="#" data-key="l3"></a>
+        <a class="ltr" href="mailto:hanane.hasanzade.m@gmail.com" data-key="l1"></a>
+        <a class="ltr" href="https://www.linkedin.com/in/hanane-hasanzade-084a63331/" target="_blank" rel="noopener noreferrer" data-key="l2"></a>
+        <a class="ltr" href="https://github.com/Hanane003" target="_blank" rel="noopener noreferrer" data-key="l3"></a>
       </div>
     </div>
   </section>
